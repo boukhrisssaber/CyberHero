@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manual Enrollment</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        .container { max-width: 800px; margin: auto; }
+        .form-group { margin-bottom: 1em; }
+        label { display: block; margin-bottom: 0.5em; }
+        textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
+        textarea { height: 150px; }
+        select { height: 200px; }
+        button { padding: 10px 15px; cursor: pointer; }
+        .flash-success { padding: 1em; margin-bottom: 1em; border: 1px solid green; background-color: #d4edda; }
+        .flash-error { padding: 1em; margin-bottom: 1em; border: 1px solid red; background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('dashboard') }}">&laquo; Back to Dashboard</a>
+        
+        <h1>Manual User Enrollment</h1>
+        <h3>for the CISO to perform ad-hoc enrollments that are not related to any campaign.</h3>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <p>Enroll one or more users into multiple courses at once.</p>
+
+        <form method="POST" action="{{ url_for('manual_enroll') }}">
+            <div class="form-group">
+                <label for="user_emails">User Emails (one per line):</label>
+                <textarea id="user_emails" name="user_emails_text" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="course_ids">Select Courses (hold Ctrl/Cmd to select multiple):</label>
+                <select id="course_ids" name="course_ids" multiple required size="8">
+                    {% for course in moodle_courses %}
+                        <option value="{{ course.id }}">{{ course.fullname }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <button type="submit">Enroll Users</button>
+        </form>
+    </div>
+</body>
+</html>

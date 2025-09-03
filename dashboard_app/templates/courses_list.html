@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Course Roster - CISO Dashboard{% endblock %}
+
+{% block content %}
+  <h1>Moodle Course Roster</h1>
+  <p>Select a course to view all enrolled users.</p>
+  <div class="list-group">
+    {% for course in courses %}
+      <a href="{{ url_for('course_users', course_id=course.id) }}" class="list-group-item list-group-item-action">
+        {{ course.fullname }}
+      </a>
+    {% else %}
+      <p>Could not load courses from Moodle.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

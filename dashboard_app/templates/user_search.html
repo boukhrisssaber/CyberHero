@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}User Course Search{% endblock %}
+
+{% block content %}
+  <h1>Search for User's Enrolled Courses</h1>
+  <form method="POST" class="row g-3 align-items-center">
+    <div class="col-auto">
+      <label for="email" class="visually-hidden">Email</label>
+      <input type="email" class="form-control" name="email" id="email" placeholder="user@example.com" required>
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+  </form>
+
+  {% if user %}
+    <h2 class="mt-4">Courses for: {{ user.fullname }}</h2>
+    {% if courses %}
+    <ul class="list-group">
+      {% for course in courses %}
+      <li class="list-group-item">{{ course.fullname }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>This user is not enrolled in any courses.</p>
+    {% endif %}
+  {% elif search_attempt %}
+    <p class="text-danger mt-3">User not found.</p>
+  {% endif %}
+{% endblock %}

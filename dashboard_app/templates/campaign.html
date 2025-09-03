@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Campaign: {{ campaign.name }}{% endblock %}
+
+{% block content %}
+  <p><a href="{{ url_for('dashboard') }}">&laquo; Back to Dashboard</a></p>
+  <h1>Campaign: {{ campaign.name }}</h1>
+  
+  <h2 class="mt-4">Failed Users</h2>
+  <p>Found {{ failed_users|length }} user(s) who clicked or submitted data.</p>
+  
+  <form action="{{ url_for('enroll_users') }}" method="POST" class="border p-3 rounded-2 bg-light">
+    <input type="hidden" name="campaign_id" value="{{ campaign.id }}">
+    <table class="table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="select-all"></th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Email</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in failed_users %}
+        <tr>
+          <td><input type="checkbox" class="user-checkbox" name="user_emails" value="{{ user.email }}" checked></td>
+          <td>{{ user.first_name }}</td>
+          <td>{{ user.last_name }}</td>
+          <td>{{ user.email }}</td>
+          <td><span class="badge bg-warning text-dark">{{ user.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="mt-3">
+        <label for="course_ids" class="form-label"><strong>Assign Remedial Training</strong></label>
+        <select name="course_ids" id="course_ids" class="form-select" multiple required size="5">
+            {% for course in moodle_courses %}
+                <option value="{{ course.id }}">{{ course.fullname }}</option>
+            {% endfor %}
+        </select>
+        <div class="form-text">Hold Ctrl (or Cmd on Mac) to select multiple courses.</div>
+    </div>
+    
+    <button type="submit" class="btn btn-success mt-3">Enroll Selected Users</button>
+  </form>
+  
+  <script>
+    // Simple script to make "select all" checkbox work
+    document.getElementById('select-all').addEventListener('click', function(event) {
+      document.querySelectorAll('.user-checkbox').forEach(function(checkbox) {
+        checkbox.checked = event.target.checked;
+      });
+    });
+  </script>
+{% endblock %}
