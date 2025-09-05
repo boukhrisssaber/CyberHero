@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}AI Content Lab{% endblock %}
+
+{% block content %}
+  <h1>AI Content Lab</h1>
+  <p>Generate phishing and training content using the power of Gemini AI.</p>
+
+  <div class="card bg-light">
+    <div class="card-body">
+      <form method="POST">
+        <div class="mb-3">
+          <label for="content_type" class="form-label"><strong>1. Select Content Type:</strong></label>
+          <select name="content_type" id="content_type" class="form-select">
+            <option value="phishing_email">Phishing Email Template (HTML)</option>
+            <option value="moodle_quiz">Moodle Quiz Questions (Text)</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="prompt" class="form-label"><strong>2. Enter Your Prompt:</strong></label>
+          <textarea name="prompt" id="prompt" class="form-control" rows="3" placeholder="e.g., 'An urgent password reset notification from the IT department.'"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Generate Content</button>
+      </form>
+    </div>
+  </div>
+
+  {% if generated_content %}
+  <div class="mt-4">
+    <h2>Generated Content:</h2>
+    <div class="card">
+      <div class="card-body">
+        <pre style="white-space: pre-wrap; word-wrap: break-word;"><code>{{ generated_content }}</code></pre>
+      </div>
+    </div>
+    <button class="btn btn-secondary mt-2" onclick="copyToClipboard()">Copy to Clipboard</button>
+  </div>
+
+  <script>
+  function copyToClipboard() {
+    const content = document.querySelector('pre code').innerText;
+    navigator.clipboard.writeText(content).then(function() {
+      alert('Content copied to clipboard!');
+    }, function(err) {
+      alert('Failed to copy content: ', err);
+    });
+  }
+  </script>
+  {% endif %}
+{% endblock %}

@@ -1,5 +1,6 @@
 from flask import current_app as app
 from flask import flash, render_template, request, redirect, url_for
+from .ai_utils import generate_content
 import requests
 import os
 
@@ -292,7 +293,6 @@ def disenroll(enrollment_id):
     }
     result = moodle_api_call(function, params)
 
-    # --- FIX STARTS HERE ---
     # A successful disenroll returns None or a dict without an 'exception'.
     if result is None or (isinstance(result, dict) and 'exception' not in result):
         db.session.delete(enrollment)
@@ -302,7 +302,6 @@ def disenroll(enrollment_id):
         # This now only runs if there was a real error.
         error_message = result.get('message', 'Unknown Moodle API error.') if isinstance(result, dict) else 'Unknown Moodle API error.'
         flash(f"Moodle API error: Could not disenroll user. {error_message}", "error")
-    # --- FIX ENDS HERE ---
 
     return redirect(url_for('training_status'))
 
@@ -349,3 +348,19 @@ def user_search():
     
     # If it's a GET request, just show the search page
     return render_template('user_search.html', search_attempt=False)
+
+
+@app.route('/ai_lab', methods=['GET', 'POST'])
+def ai_lab():
+    generated_content = None
+    if request.method == 'POST':
+        content_type = request.form.get('content_type')
+        prompt = request.form.get('prompt')
+        if content_type and prompt:
+            # Show a loading message while waiting for the API
+            flash("Generating content with Gemini AI, please wait...", "info")
+            generated_content = generate_content(content_type, prompt)
+        else:
+            flash("Please select a content type and enter a prompt.", "error")
+    
+    return render_template('ai_lab.html', generated_content=generated_content)
