@@ -7,39 +7,41 @@
     <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">&laquo; Back to Dashboard</a>
   </div>
 
-  <table class="table table-striped table-hover">
-    <thead class="table-light">
-      <tr>
-        <th>User Email</th>
-        <th>Course Name</th>
-        <th>Enrolled On</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for enrollment in enrollments %}
-      <tr>
-        <td>{{ enrollment.user_email }}</td>
-        <td>{{ enrollment.course_name }}</td>
-        <td>{{ enrollment.enrollment_timestamp.strftime('%Y-%m-%d') }}</td>
-        <td>
-          {% if enrollment.completion_status == 'Completed' %}
-            <span class="badge bg-success">Completed</span>
-          {% elif enrollment.completion_status == 'In Progress' %}
-            <span class="badge bg-warning text-dark">In Progress</span>
-          {% else %}
-            <span class="badge bg-secondary">{{ enrollment.completion_status }}</span>
-          {% endif %}
-        </td>
-        {# --- ADD THIS ENTIRE CELL --- #}
-        <td>
-          <form method="POST" action="{{ url_for('disenroll', enrollment_id=enrollment.id) }}" onsubmit="return confirm('Are you sure you want to disenroll this user?');">
-            <button type="submit" class="btn btn-sm btn-outline-danger">Disenroll</button>
-          </form>
-        </td>
-        {# --------------------------- #}
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="content-card">
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>User Email</th>
+          <th>Course Name</th>
+          <th>Enrolled On</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for enrollment in enrollments %}
+        <tr>
+          <td>{{ enrollment.user_email }}</td>
+          <td>{{ enrollment.course_name }}</td>
+          <td>{{ enrollment.enrollment_timestamp.strftime('%Y-%m-%d') }}</td>
+          <td>
+            {% if enrollment.completion_status == 'Completed' %}
+              <span class="badge bg-success">Completed</span>
+            {% elif enrollment.completion_status == 'In Progress' %}
+              <span class="badge bg-warning text-dark">In Progress</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ enrollment.completion_status }}</span>
+            {% endif %}
+          </td>
+          {# --- ADD THIS ENTIRE CELL --- #}
+          <td>
+            <form method="POST" action="{{ url_for('disenroll', enrollment_id=enrollment.id) }}" onsubmit="return confirm('Are you sure you want to disenroll this user?');">
+              <button type="submit" class="btn btn-sm btn-outline-danger">Disenroll</button>
+            </form>
+          </td>
+          {# --------------------------- #}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}

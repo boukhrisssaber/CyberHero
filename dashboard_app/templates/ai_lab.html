@@ -5,31 +5,30 @@
   <h1>AI Content Lab</h1>
   <p>Generate phishing and training content using the power of Gemini AI.</p>
 
-  <div class="card bg-light">
-    <div class="card-body">
-      <form method="POST">
-        <div class="mb-3">
-          <label for="content_type" class="form-label"><strong>1. Select Content Type:</strong></label>
-          <select name="content_type" id="content_type" class="form-select">
-            <option value="phishing_email">Phishing Email Template (HTML)</option>
-            <option value="moodle_quiz">Moodle Quiz Questions (Text)</option>
-          </select>
-        </div>
 
-        <div class="mb-3">
-          <label for="prompt" class="form-label"><strong>2. Enter Your Prompt:</strong></label>
-          <textarea name="prompt" id="prompt" class="form-control" rows="3" placeholder="e.g., 'An urgent password reset notification from the IT department.'"></textarea>
-        </div>
+  <div class="content-card">
+    <form method="POST">
+      <div class="mb-3">
+        <label for="content_type" class="form-label"><strong>1. Select Content Type:</strong></label>
+        <select name="content_type" id="content_type" class="form-select">
+          <option value="phishing_email">Phishing Email Template (HTML)</option>
+          <option value="moodle_quiz">Moodle Quiz Questions (Text)</option>
+        </select>
+      </div>
 
-        <button type="submit" class="btn btn-primary">Generate Content</button>
-      </form>
-    </div>
+      <div class="mb-3">
+        <label for="prompt" class="form-label"><strong>2. Enter Your Prompt:</strong></label>
+        <textarea name="prompt" id="prompt" class="form-control" rows="3" placeholder="e.g., 'An urgent password reset notification from the IT department.'"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Generate Content</button>
+    </form>
   </div>
 
   {% if generated_content %}
   <div class="mt-4">
     <h2>Generated Content:</h2>
-    <div class="card">
+    <div class="content-card">
       <div class="card-body">
         <pre style="white-space: pre-wrap; word-wrap: break-word;"><code>{{ generated_content }}</code></pre>
       </div>

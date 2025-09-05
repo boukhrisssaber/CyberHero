@@ -1,55 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Manual Enrollment</title>
-    <style>
-        body { font-family: sans-serif; margin: 2em; }
-        .container { max-width: 800px; margin: auto; }
-        .form-group { margin-bottom: 1em; }
-        label { display: block; margin-bottom: 0.5em; }
-        textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
-        textarea { height: 150px; }
-        select { height: 200px; }
-        button { padding: 10px 15px; cursor: pointer; }
-        .flash-success { padding: 1em; margin-bottom: 1em; border: 1px solid green; background-color: #d4edda; }
-        .flash-error { padding: 1em; margin-bottom: 1em; border: 1px solid red; background-color: #f8d7da; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <a href="{{ url_for('dashboard') }}">&laquo; Back to Dashboard</a>
-        
-        <h1>Manual User Enrollment</h1>
-        <h3>for the CISO to perform ad-hoc enrollments that are not related to any campaign.</h3>
+{% extends "base.html" %}
+{% block title %}Manual Enrollment{% endblock %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="flash-{{ category }}">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
 
-        <p>Enroll one or more users into multiple courses at once.</p>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+          <h1>Manual User Enrollment</h1>
+      </div>
+
+      <div class="content-card">
+        <p class="text-muted">
+          Use this form for ad-hoc enrollments that are not related to a specific phishing campaign.
+        </p>
 
         <form method="POST" action="{{ url_for('manual_enroll') }}">
-            <div class="form-group">
-                <label for="user_emails">User Emails (one per line):</label>
-                <textarea id="user_emails" name="user_emails_text" required></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="course_ids">Select Courses (hold Ctrl/Cmd to select multiple):</label>
-                <select id="course_ids" name="course_ids" multiple required size="8">
-                    {% for course in moodle_courses %}
-                        <option value="{{ course.id }}">{{ course.fullname }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <button type="submit">Enroll Users</button>
+          <div class="mb-3">
+            <label for="user_emails_text" class="form-label"><strong>User Emails (one per line)</strong></label>
+            <textarea id="user_emails_text" name="user_emails_text" class="form-control" rows="5" required></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label for="course_ids" class="form-label"><strong>Select Courses</strong></label>
+            <select id="course_ids" name="course_ids" class="form-select" multiple required size="8">
+              {% for course in moodle_courses %}
+                <option value="{{ course.id }}">{{ course.fullname }}</option>
+              {% endfor %}
+            </select>
+            <div class="form-text">Hold Ctrl (or Cmd on Mac) to select multiple courses.</div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary">Enroll Users</button>
         </form>
+      </div>
+
     </div>
-</body>
-</html>
+  </div>
+{% endblock %}

@@ -58,6 +58,11 @@ def get_moodle_user_by_email(email):
 # --- FLASK ROUTES ---
 
 @app.route('/')
+def home_page():
+    """Renders the main welcome/landing page."""
+    return render_template('home.html')
+
+@app.route('/dashboard')
 def dashboard():
     headers = {'Authorization': f'Bearer {GOPHISH_API_KEY}'}
     campaigns = []
@@ -71,7 +76,7 @@ def dashboard():
             c['fail_rate'] = f"{(failed / total) * 100:.2f}%" if total > 0 else "N/A"
     except requests.exceptions.RequestException as e:
         flash(f"Could not fetch campaigns from GoPhish: {e}", "error")
-    return render_template('index.html', campaigns=campaigns)
+    return render_template('dashboard.html', campaigns=campaigns)
 
 @app.route('/campaign/<int:campaign_id>')
 def campaign_details(campaign_id):
@@ -184,6 +189,58 @@ def manual_enroll():
             flash("Error: You must provide at least one email and select one course.", "error")
             return redirect(url_for('manual_enroll'))
 
+        successful_enrollments = 0
+        failed_enrollments = []
+        
+        for email in user_emails:
+            user_object = get_moodle_user_by_email(email)
+            if user_object:
+                user_id = user_object['id']
+                for course_id in course_ids:
+                    function = 'enrol_manual_enrol_users'
+                    params = {'enrolments[0][roleid]': 5, 'enrolments[0][userid]': user_id, 'enrolments[0][courseid]': course_id}
+                    result = moodle_api_call(function, params)
+                    
+                    is_successful = False
+                    if result and isinstance(result, dict) and 'exception' in result:
+                        if result.get('errorcode') == 'Message was not sent.':
+                            is_successful = True
+                    else:
+                        is_successful = True
+
+                    if is_successful:
+                        successful_enrollments += 1
+                        new_enrollment = Enrollment(gophish_campaign_id=0, user_email=email, moodle_user_id=user_id, moodle_course_id=course_id)
+                        db.session.add(new_enrollment)
+                    else:
+                        failed_enrollments.append(f"{email} in CourseID {course_id}")
+            else:
+                failed_enrollments.append(f"{email} (User not found)")
+        
+        if successful_enrollments > 0:
+            try:
+                db.session.commit()
+                flash(f"Process complete. Created {successful_enrollments} new course enrollments.", "success")
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Database error: {e}", "error")
+        
+        if failed_enrollments:
+            flash(f"Failed to create some enrollments: {', '.join(failed_enrollments)}", "error")
+            
+        return redirect(url_for('manual_enroll'))
+
+    moodle_courses = moodle_api_call('core_course_get_courses') or []
+    return render_template('manual_enroll.html', moodle_courses=moodle_courses)
+    if request.method == 'POST':
+        course_ids = request.form.getlist('course_ids')
+        emails_string = request.form.get('user_emails_text', '')
+        user_emails = [e.strip() for e in emails_string.splitlines() if e.strip()]
+
+        if not course_ids or not user_emails:
+            flash("Error: You must provide at least one email and select one course.", "error")
+            return redirect(url_for('manual_enroll'))
+
         successful_enrollments, failed_emails = 0, []
         for email in user_emails:
             user_object = get_moodle_user_by_email(email)
@@ -215,6 +272,7 @@ def manual_enroll():
 
     moodle_courses = moodle_api_call('core_course_get_courses') or []
     return render_template('manual_enroll.html', moodle_courses=moodle_courses)
+
 
 @app.route('/training_status')
 def training_status():

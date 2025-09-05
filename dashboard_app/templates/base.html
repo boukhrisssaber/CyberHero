@@ -1,62 +1,202 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-t">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}CISO Dashboard{% endblock %}</title>
-    <!-- Bootstrap CSS -->
+
+    <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- =========== Final, Corrected Styling =========== -->
     <style>
-      /* A little bit of custom styling */
-      .flash-error { color: #842029; background-color: #f8d7da; border-color: #f5c2c7; }
-      .flash-success { color: #0f5132; background-color: #d1e7dd; border-color: #badbcc; }
+      :root {
+        --bs-primary: #00a8e8;
+        --bs-primary-rgb: 0, 168, 232;
+      }
+      body { transition: background-color 0.3s ease-in-out; }
+      [data-bs-theme="dark"] {
+        --bs-body-bg: #22272e;
+        --bs-body-color: #cdd9e5;
+        --bs-tertiary-bg: #2d333b;
+        --bs-border-color: #444c56;
+      }
+      /* --- Custom Card Style for Tables & Forms --- */
+      .content-card {
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+      }
+
+      [data-bs-theme="light"] .content-card {
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+      }
+
+      [data-bs-theme="dark"] .content-card {
+        background-color: var(--bs-tertiary-bg);
+        border: 1px solid var(--bs-border-color);
+      }
+      [data-bs-theme="dark"] .table {
+        --bs-table-bg: #2d333b;
+        --bs-table-striped-bg: #282d34;
+        --bs-table-color: #cdd9e5;
+      }
+      [data-bs-theme="dark"] .form-control,
+      [data-bs-theme="dark"] .form-select,
+      [data-bs-theme="dark"] .card {
+        background-color: #2d333b;
+        color: #cdd9e5;
+        border-color: #444c56;
+      }
+      [data-bs-theme="dark"] .form-control::placeholder { color: #6a737d; }
+      .nav-item .nav-link.active { background-color: rgba(255, 255, 255, 0.1); border-radius: 0.25rem; }
+      [data-bs-theme="light"] .flash-success {
+        color: #0f5132; background-color: #d1e7dd; border-color: #badbcc;
+      }
+      [data-bs-theme="light"] .flash-error {
+        color: #842029; background-color: #f8d7da; border-color: #f5c2c7;
+      }
+      [data-bs-theme="light"] .flash-info {
+        color: #055160; background-color: #cff4fc; border-color: #b6effb;
+      }
+
+      [data-bs-theme="dark"] .flash-success {
+        color: #75b798; background-color: #192823; border-color: #2a483a;
+      }
+      [data-bs-theme="dark"] .flash-error {
+        color: #f1aeb5; background-color: #2c1b1d; border-color: #582f36;
+      }
+      [data-bs-theme="dark"] .flash-info {
+        color: #6edff6; background-color: #192c33; border-color: #27515d;
+      }
+      .theme-toggle { cursor: pointer; font-size: 1.25rem; text-decoration: none; }
+      .theme-toggle .fas { color: var(--bs-navbar-color); transition: color 0.2s ease-in-out; }
+      .theme-toggle:hover .fas { color: var(--bs-navbar-hover-color); }
     </style>
+
+    <!-- =========== Theme Loader Script (Runs before page renders) =========== -->
+    <script>
+      (function() {
+        const getStoredTheme = () => localStorage.getItem('theme');
+        const getPreferredTheme = () => {
+          const storedTheme = getStoredTheme();
+          if (storedTheme) {
+            return storedTheme;
+          }
+          return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        };
+        const setTheme = theme => {
+          document.documentElement.setAttribute('data-bs-theme', theme);
+        };
+        setTheme(getPreferredTheme());
+      })();
+    </script>
   </head>
   <body>
+    
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
       <div class="container">
-        <a class="navbar-brand" href="{{ url_for('dashboard') }}">CISO Dashboard</a>
-        <div class="collapse navbar-collapse">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('dashboard') }}">Campaigns</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('training_status') }}">Training Status</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('courses_list') }}">Course Roster</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('user_search') }}">User Search</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('ai_lab') }}">AI Content Lab</a>
-          </li>
-        </ul>
+        <a class="navbar-brand" href="{{ url_for('home_page') }}">
+          <i class="fas fa-user-secret"></i> CISO Dashboard
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            {% macro nav_link(endpoint, text) %}
+              <li class="nav-item">
+                <a class="nav-link {{ 'active' if request.endpoint == endpoint else '' }}" href="{{ url_for(endpoint) }}">{{ text }}</a>
+              </li>
+            {% endmacro %}
+            {{ nav_link('dashboard', 'Campaigns') }}
+            {{ nav_link('training_status', 'Training Status') }}
+            {{ nav_link('courses_list', 'Course Roster') }}
+            {{ nav_link('user_search', 'User Search') }}
+            {{ nav_link('ai_lab', 'AI Content Lab') }}
+          </ul>
+          <div class="d-flex align-items-center">
+             <a id="theme-toggle" class="nav-link theme-toggle ms-3">
+               <i id="theme-toggle-icon" class="fas"></i>
+             </a>
+          </div>
         </div>
       </div>
     </nav>
 
     <div class="container mt-4">
-    <div class="container mt-4">
-      
-      <!-- Flash Messages -->
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, message in messages %}
-            <div class="alert flash-{{ category }}" role="alert">
+            {# Map our simple categories to Bootstrap's alert color classes #}
+            {% set alert_class = 'secondary' %}  {# A neutral default #}
+            {% if category == 'success' %}{% set alert_class = 'success' %}{% endif %}
+            {% if category == 'error' %}{% set alert_class = 'danger' %}{% endif %}
+            {% if category == 'info' %}{% set alert_class = 'info' %}{% endif %}
+            
+            {# 
+              This line now includes BOTH the standard Bootstrap class (for basic structure and icons)
+              AND our custom flash-{{ category }} class (for our theme-aware color overrides).
+            #}
+            <div class="alert alert-{{ alert_class }} flash-{{ category }} alert-dismissible fade show" role="alert">
               {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
           {% endfor %}
         {% endif %}
       {% endwith %}
 
-      <!-- Main content block -->
       {% block content %}{% endblock %}
-
     </div>
-    <!-- Bootstrap JS -->
+
+    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+
+    {# A dedicated block for page-specific JS #}
+    {% block scripts %}
+    <script>
+      // This script runs after the page has fully loaded
+      document.addEventListener('DOMContentLoaded', () => {
+        
+        // --- Logic for the Theme Toggle Button ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleIcon = document.getElementById('theme-toggle-icon');
+
+        const updateIcon = () => {
+          const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+          themeToggleIcon.className = currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        };
+
+        themeToggleBtn.addEventListener('click', () => {
+          const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          localStorage.setItem('theme', newTheme);
+          document.documentElement.setAttribute('data-bs-theme', newTheme);
+          updateIcon();
+        });
+        
+        updateIcon(); // Set the initial icon
+
+        // --- Logic for Auto-Dismissing 'info' Flash Messages ---
+        const infoAlert = document.querySelector('.alert.flash-info');
+        if (infoAlert) {
+          setTimeout(() => {
+            const alertInstance = bootstrap.Alert.getOrCreateInstance(infoAlert);
+            if (alertInstance) {
+              alertInstance.close();
+            }
+          }, 3500);
+        }
+      });
+    </script>
+    {% endblock %}
+
   </body>
 </html>

@@ -8,7 +8,7 @@
   <h2 class="mt-4">Failed Users</h2>
   <p>Found {{ failed_users|length }} user(s) who clicked or submitted data.</p>
   
-  <form action="{{ url_for('enroll_users') }}" method="POST" class="border p-3 rounded-2 bg-light">
+  <form action="{{ url_for('enroll_users') }}" method="POST" class="content-card">
     <input type="hidden" name="campaign_id" value="{{ campaign.id }}">
     <table class="table">
       <thead>

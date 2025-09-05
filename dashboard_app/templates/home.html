@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Welcome - CISO Dashboard{% endblock %}
+
+{% block content %}
+  <div class="text-center py-5 px-3">
+    {# Using a container to keep the content nicely centered and spaced #}
+    <div class="col-lg-6 col-md-8 mx-auto">
+      <i class="fas fa-user-secret fa-4x mb-4 text-primary"></i>
+      <h1 class="display-4 fw-bold">CISO Dashboard</h1>
+      <p class="lead mb-4">
+        The central hub for managing your organization's security awareness.
+        Monitor phishing campaigns and track remedial training progress all in one place.
+      </p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4 gap-3">
+          <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+        </a>
+        <a href="{{ url_for('training_status') }}" class="btn btn-outline-secondary btn-lg px-4">
+          <i class="fas fa-tasks"></i> View Training Status
+        </a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -4,27 +4,29 @@
 {% block content %}
   <p><a href="{{ url_for('courses_list') }}">&laquo; Back to Courses List</a></p>
   <h1>Users in: {{ course.fullname }}</h1>
-  
-  <table class="table table-striped">
-    <thead class="table-light">
-      <tr>
-        <th>User ID</th>
-        <th>Full Name</th>
-        <th>Email</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for user in users %}
-      <tr>
-        <td>{{ user.id }}</td>
-        <td>{{ user.fullname }}</td>
-        <td>{{ user.email }}</td>
-      </tr>
-      {% else %}
-      <tr>
-        <td colspan="3">No users found in this course.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+
+  <div class="content-card">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Full Name</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.fullname }}</td>
+          <td>{{ user.email }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="3">No users found in this course.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>  
 {% endblock %}
