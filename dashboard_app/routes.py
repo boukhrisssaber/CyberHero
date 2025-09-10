@@ -3,6 +3,9 @@ from flask import flash, render_template, request, redirect, url_for
 from .ai_utils import generate_content
 import requests
 import os
+import json
+from . import db
+from .models import Enrollment
 
 from . import db
 from .models import Enrollment
@@ -66,17 +69,66 @@ def home_page():
 def dashboard():
     headers = {'Authorization': f'Bearer {GOPHISH_API_KEY}'}
     campaigns = []
+    total_stats = {'sent': 0, 'opened': 0, 'clicked': 0, 'submitted': 0}
+    trend_data = {'labels': [], 'fail_rates': []}
+
     try:
-        response = requests.get(f"{GOPHISH_URL}/api/campaigns/", headers=headers, verify=False, timeout=10)
-        response.raise_for_status()
-        campaigns = response.json()
-        for c in campaigns:
-            stats = c.get('stats', {}); total = stats.get('total', 0)
-            failed = stats.get('submitted_data', 0) + stats.get('clicked_link', 0)
-            c['fail_rate'] = f"{(failed / total) * 100:.2f}%" if total > 0 else "N/A"
+        # Step 1: Get the basic list of all campaigns
+        list_response = requests.get(f"{GOPHISH_URL}/api/campaigns/", headers=headers, verify=False, timeout=10)
+        list_response.raise_for_status()
+        campaign_list = list_response.json()
+        
+        # Sort campaigns by date to ensure the trend is correct before processing
+        campaign_list.sort(key=lambda c: c['created_date'], reverse=True)
+
+        # Step 2: Loop through each campaign to get its ACCURATE, real-time details
+        for campaign_summary in campaign_list:
+            detail_response = requests.get(f"{GOPHISH_URL}/api/campaigns/{campaign_summary['id']}", headers=headers, verify=False, timeout=10)
+            if detail_response.status_code != 200:
+                continue # Skip this campaign if we can't get its details
+            
+            campaign = detail_response.json()
+            
+            # --- Manually calculate ACCURATE stats from the detailed results ---
+            results = campaign.get('results', [])
+            total_users = len(results)
+            opened_count = len([r for r in results if r['status'] == 'Email Opened'])
+            clicked_count = len([r for r in results if r['status'] == 'Clicked Link'])
+            submitted_count = len([r for r in results if r['status'] == 'Submitted Data'])
+            
+            # Aggregate stats for the funnel chart
+            total_stats['sent'] += total_users
+            total_stats['opened'] += opened_count
+            total_stats['clicked'] += clicked_count
+            total_stats['submitted'] += submitted_count
+
+            # Calculate fail rate for the table
+            failed_count = clicked_count + submitted_count
+            campaign['fail_rate'] = f"{(failed_count / total_users) * 100:.2f}%" if total_users > 0 else "0.00%"
+            
+            # Add the full, accurate campaign object to our final list
+            campaigns.append(campaign)
+        
+        # Prepare data for the trend chart using our now-accurate data
+        for campaign in reversed(campaigns[:10]):
+            results = campaign.get('results', [])
+            total_users = len(results)
+            failed_count = len([r for r in results if r['status'] in ['Clicked Link', 'Submitted Data']])
+            fail_rate = (failed_count / total_users) * 100 if total_users > 0 else 0
+            
+            trend_data['labels'].append(campaign['name'])
+            trend_data['fail_rates'].append(round(fail_rate, 2))
+
     except requests.exceptions.RequestException as e:
         flash(f"Could not fetch campaigns from GoPhish: {e}", "error")
-    return render_template('dashboard.html', campaigns=campaigns)
+
+    return render_template(
+        'dashboard.html', 
+        campaigns=campaigns, 
+        total_stats_json=json.dumps(total_stats), 
+        trend_data_json=json.dumps(trend_data)
+    )
+
 
 @app.route('/campaign/<int:campaign_id>')
 def campaign_details(campaign_id):
