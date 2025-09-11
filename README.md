@@ -2,7 +2,7 @@
 
 ### **Project Description & Current Status**
 
-The project is a custom-built web platform designed to bridge the critical gap between offensive security simulations (phishing) and defensive user education (remedial training). It integrates two powerful open-source platforms, **GoPhish** and **Moodle**, via a central management hub called the **CISO Dashboard**. This dashboard provides a single pane of glass for a Chief Information Security Officer (CISO) or security manager to orchestrate a complete security awareness lifecycle: test users with realistic phishing campaigns, analyze the results, and assign targeted training to users who fail.
+The project is a custom-built web platform designed to bridge the critical gap between offensive security simulations (phishing) and defensive user education (remedial training). It integrates two powerful open-source platforms, **GoPhish** and **Moodle**, via a central management hub called the **Manager Dashboard**. This dashboard provides a single pane of glass for a Chief Information Security Officer (Manager) or security manager to orchestrate a complete security awareness lifecycle: test users with realistic phishing campaigns, analyze the results, and assign targeted training to users who fail.
 
 **Core Components & Features (Implemented):**
 
@@ -15,14 +15,14 @@ The project is a custom-built web platform designed to bridge the critical gap b
     *   A fully configured Moodle instance is running on the server, serving as the repository for all security training courses.
     *   Moodle's web services API has been securely configured with a dedicated user, a custom service, and specific function authorizations.
 
-3.  **The CISO Dashboard (Custom Flask Application):**
+3.  **The Manager Dashboard (Custom Flask Application):**
     This is the central, value-add component of the project. It is a full-stack Python web application with the following features:
     *   **Campaign Monitoring:** Connects to the GoPhish API to display a list of all phishing campaigns, their current status, and a calculated "Fail Rate" (users who clicked or submitted data).
-    *   **Detailed Campaign Analysis:** Allows the CISO to drill down into a specific campaign to view a list of all users who failed the test, including their names, email addresses, and the specific action they took (e.g., "Email Opened," "Clicked Link").
-    *   **Targeted Remedial Training:** From the campaign results page, the CISO can select one or more failed users and enroll them in one or more remedial Moodle courses simultaneously. The application intelligently handles users who are already enrolled, preventing duplicate actions.
+    *   **Detailed Campaign Analysis:** Allows the Manager to drill down into a specific campaign to view a list of all users who failed the test, including their names, email addresses, and the specific action they took (e.g., "Email Opened," "Clicked Link").
+    *   **Targeted Remedial Training:** From the campaign results page, the Manager can select one or more failed users and enroll them in one or more remedial Moodle courses simultaneously. The application intelligently handles users who are already enrolled, preventing duplicate actions.
     *   **Comprehensive User & Course Management:** The dashboard provides three powerful, standalone management views:
         *   **Training Status:** A global view of all enrollments managed by the system, which checks the Moodle API in real-time to report whether a user's training is "In Progress" or "Completed." It also includes a **disenrollment** feature.
-        *   **Course Roster:** A list of all courses in Moodle, allowing the CISO to click on any course to see a complete list of all currently enrolled users.
+        *   **Course Roster:** A list of all courses in Moodle, allowing the Manager to click on any course to see a complete list of all currently enrolled users.
         *   **User Search:** A search function to find any user in Moodle by their email address and display a complete list of all the courses they are currently enrolled in.
     *   **Robust Backend:** The application is built with a scalable package structure, securely loads credentials from a `.env` file, and uses a local SQLite database to persistently track all enrollment actions.
 
@@ -39,7 +39,7 @@ The project is a custom-built web platform designed to bridge the critical gap b
 *   **Cloud & Systems Administration Skills:** You deployed and configured the entire stack from scratch on a cloud VPS (AWS EC2), including the OS, web server (Apache), firewalls (UFW, AWS Security Groups), and multiple applications.
 *   **Database Management:** You designed a database schema and integrated it into the application using SQLAlchemy to provide persistence and tracking.
 *   **Containerization Knowledge:** You have successfully used Docker to deploy and manage a key component of the infrastructure, demonstrating modern DevOps practices.
-*   **Real-World Problem Solving:** The project addresses a direct business need in the cybersecurity industry. It has a clear "client" (the CISO) and a clear value proposition.
+*   **Real-World Problem Solving:** The project addresses a direct business need in the cybersecurity industry. It has a clear "client" (the Manager) and a clear value proposition.
 *   **Extensive Debugging and Resilience:** The journey to this point involved solving dozens of complex, real-world bugs related to networking, permissions, API inconsistencies, and application logic, demonstrating a high level of technical resilience and diagnostic skill.
 
 ---
@@ -53,7 +53,7 @@ The current platform is a powerful proof-of-concept. The following steps would e
     *   **Systemd Service:** Create a `systemd` service for the Flask application to ensure it runs in the background and starts automatically on server boot.
 
 2.  **Security Enhancements:**
-    *   **Authentication:** Add a login page to the CISO Dashboard. Only authenticated users should be able to view data and perform actions. This is the single most important next step.
+    *   **Authentication:** Add a login page to the Manager Dashboard. Only authenticated users should be able to view data and perform actions. This is the single most important next step.
     *   **Role-Based Access Control (RBAC):** For a more advanced system, you could create different roles (e.g., an "Analyst" who can view results but not enroll users).
 
 3.  **Feature & UX Improvements:**
